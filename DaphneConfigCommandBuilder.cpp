@@ -253,6 +253,103 @@ void DaphneConfigCommandBuilder::applyReg51Mask_LPFFrequency(uint16_t &regValue,
     regValue = this->eraseAndApplyMask(regValue, maskLPFFrequency, eraser);
 }
 
+std::string DaphneConfigCommandBuilder::configureAFEReg4(
+    const AFE_NUMBER_t &afe, const REG_4_PARAMS_t &reg_4_params)
+{
+    std::ostringstream ss;
+    uint16_t reg_51_value = 0;
+    this->applyReg4Mask_ADCOutputFormat(reg_51_value, reg_4_params.ADCOutputFormat);
+    this->applyReg4Mask_ADCOutputFirstBit(reg_51_value, reg_4_params.ADCOutputFirstBit);
+
+    ss << "WR AFE " << (int)afe << " REG 4 V " << reg_51_value << "\r\n";
+
+    return ss.str();
+}
+
+void DaphneConfigCommandBuilder::applyReg4Mask_ADCOutputFormat(
+    uint16_t &regValue, const ADC_OUTPUT_FORMAT_t &ADCOutputFormat)
+{
+    uint16_t maskADCOutputFormat;
+
+    switch ((int)ADCOutputFormat)
+    {
+    case ADC_FORMAT_2COMP:
+        maskADCOutputFormat = MASK_ADC_OUTPUT_FORMAT_2COMP_REG_4;
+        break;
+    case ADC_FORMAT_OFFSET_BINARY:
+        maskADCOutputFormat = MASK_ADC_OUTPUT_FORMAT_OFFSET_BIN_REG_4;
+        break;
+    default:
+        maskADCOutputFormat = 0;
+        break;
+    }
+
+    uint16_t eraser = MASK_ERASER_ADC_OUTPUT_FORMAT_REG_4;
+    regValue = this->eraseAndApplyMask(regValue, maskADCOutputFormat, eraser);
+}
+
+void DaphneConfigCommandBuilder::applyReg4Mask_ADCOutputFirstBit(
+    uint16_t &regValue, const ADC_OUTPUT_FIRST_BIT_t &ADCOutputFirstBit)
+{
+    uint16_t maskADCFirstBit;
+
+    switch ((int)ADCOutputFirstBit)
+    {
+    case ADC_ENDIAN_LSB_FIRST:
+        maskADCFirstBit = MASK_LSB_FIRST_REG_4;
+        break;
+    case ADC_ENDIAN_MSB_FIRST:
+        maskADCFirstBit = MASK_MSB_FIRST_REG_4;
+        break;
+    default:
+        maskADCFirstBit = 0;
+        break;
+    }
+
+    uint16_t eraser = MASK_ERASER_ADC_FIRST_BIT_REG_4;
+    regValue = this->eraseAndApplyMask(regValue, maskADCFirstBit, eraser);
+}
+
+std::string DaphneConfigCommandBuilder::configureAFEReg1(const AFE_NUMBER_t &afe, const REG_1_PARAMS_t &reg_1_params)
+{
+    std::ostringstream ss;
+    uint16_t reg_1_value = 0;
+
+    ss << "WR AFE " << (int)afe << " REG 1 V " << reg_1_value << "\r\n";
+
+    return ss.str();
+}
+
+std::string DaphneConfigCommandBuilder::configureAFEReg21(const AFE_NUMBER_t &afe, const REG_21_PARAMS_t &reg_21_params)
+{
+    std::ostringstream ss;
+    uint16_t reg_21_value = 0;
+
+    ss << "WR AFE " << (int)afe << " REG 21 V " << reg_21_value << "\r\n";
+
+    return ss.str();
+}
+
+std::string DaphneConfigCommandBuilder::configureAFEReg33(const AFE_NUMBER_t &afe, const REG_33_PARAMS_t &reg_33_params)
+{
+    std::ostringstream ss;
+    uint16_t reg_33_value = 0;
+
+    ss << "WR AFE " << (int)afe << " REG 33 V " << reg_33_value << "\r\n";
+
+    return ss.str();
+}
+
+std::string DaphneConfigCommandBuilder::configureAFEReg59(const AFE_NUMBER_t &afe, const REG_59_PARAMS_t &reg_59_params)
+{
+    std::ostringstream ss;
+    uint16_t reg_59_value = 0;
+
+    ss << "WR AFE " << (int)afe << " REG 59 V " << reg_59_value << "\r\n";
+
+    return ss.str();
+}
+
 uint16_t DaphneConfigCommandBuilder::eraseAndApplyMask(uint16_t &reg, uint16_t &mask, uint16_t &eraser)
 {
     uint16_t value_reg, eraser_;
@@ -260,4 +357,9 @@ uint16_t DaphneConfigCommandBuilder::eraseAndApplyMask(uint16_t &reg, uint16_t &
     value_reg = reg & eraser_;
     value_reg = value_reg | mask;
     return value_reg;
+}
+
+std::string DaphneConfigCommandBuilder::FPGAReset(void)
+{
+    return "CFG FPGA RESET\r\n";
 }

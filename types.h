@@ -116,4 +116,38 @@ typedef struct
     LPF_FREQUENCY_t LPFFrequency_MHz;
 } REG_51_PARAMS_t;
 
+typedef enum
+{
+    ADC_FORMAT_2COMP,
+    ADC_FORMAT_OFFSET_BINARY
+} ADC_OUTPUT_FORMAT_t;
+
+typedef enum
+{
+    ADC_ENDIAN_LSB_FIRST,
+    ADC_ENDIAN_MSB_FIRST
+} ADC_OUTPUT_FIRST_BIT_t;
+
+typedef struct
+{
+    ADC_OUTPUT_FORMAT_t ADCOutputFormat;
+    ADC_OUTPUT_FIRST_BIT_t ADCOutputFirstBit;
+} REG_4_PARAMS_t;
+
+typedef struct
+{
+} REG_1_PARAMS_t;
+
+typedef struct
+{
+} REG_21_PARAMS_t;
+
+typedef struct
+{
+} REG_33_PARAMS_t;
+
+typedef struct
+{
+} REG_59_PARAMS_t;
+
 #endif
