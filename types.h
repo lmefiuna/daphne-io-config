@@ -68,10 +68,20 @@ typedef enum
     PGA_GAIN_30_DB
 } PGA_GAIN_DB_t;
 
+typedef enum
+{
+    IMPEDANCE_50_OHMS,
+    IMPEDANCE_100_OHMS,
+    IMPEDANCE_200_OHMS,
+    IMPEDANCE_400_OHMS,
+} PRESET_ACTIVE_TERMINATION_IMPEDANCE_t;
+
 typedef struct
 {
     LNA_GAIN_DB_t lna_gain_db;
     bool lna_integrator_enable;
+    bool activeTerminationEnable;
+    PRESET_ACTIVE_TERMINATION_IMPEDANCE_t activeTerminationImpedance;
 } REG_52_PARAMS_t;
 
 typedef struct

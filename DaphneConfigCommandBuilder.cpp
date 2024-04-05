@@ -53,6 +53,9 @@ std::string DaphneConfigCommandBuilder::configureAFEReg52(
 
     this->applyAFEReg52Mask_LNAGain(reg_52_value, reg_52_params.lna_gain_db);
     this->applyAFEReg52Mask_LNAIntegrator(reg_52_value, reg_52_params.lna_integrator_enable);
+    this->applyReg52Mask_activeTerminationEnable(reg_52_value, reg_52_params.activeTerminationEnable);
+    this->applyReg52Mask_presetActiveTerminationImpedance(
+        reg_52_value, reg_52_params.activeTerminationImpedance);
 
     ss << "WR AFE " << (int)afe << " REG 52 V " << reg_52_value << "\r\n";
 
@@ -90,6 +93,42 @@ void DaphneConfigCommandBuilder::applyAFEReg52Mask_LNAIntegrator(uint16_t &reg_v
 
     uint16_t eraser = MASK_ERASER_LNA_INTEGRATOR_REG_52;
     reg_value = this->eraseAndApplyMask(reg_value, lna_integrator_mask, eraser);
+}
+
+void DaphneConfigCommandBuilder::applyReg52Mask_activeTerminationEnable(uint16_t &regValue, const bool &enable)
+{
+    uint16_t maskActiveTerminationEnable =
+        (enable) ? MASK_ACTIVE_TERMINATION_EN_REG_52 : MASK_ACTIVE_TERMINATION_DIS_REG_52;
+
+    uint16_t eraser = MASK_ERASER_ACTIVE_TERMINATION_ENABLE_REG_52;
+    regValue = this->eraseAndApplyMask(regValue, maskActiveTerminationEnable, eraser);
+}
+
+void DaphneConfigCommandBuilder::applyReg52Mask_presetActiveTerminationImpedance(
+    uint16_t &regValue, const PRESET_ACTIVE_TERMINATION_IMPEDANCE_t &impedance)
+{
+    uint16_t maskPresetActiveTerminationImpedance;
+    switch ((int)impedance)
+    {
+    case IMPEDANCE_50_OHMS:
+        maskPresetActiveTerminationImpedance = MASK_PRESET_ACTIVE_TERMINATION_50OHMS_REG_52;
+        break;
+    case IMPEDANCE_100_OHMS:
+        maskPresetActiveTerminationImpedance = MASK_PRESET_ACTIVE_TERMINATION_100OHMS_REG_52;
+        break;
+    case IMPEDANCE_200_OHMS:
+        maskPresetActiveTerminationImpedance = MASK_PRESET_ACTIVE_TERMINATION_200OHMS_REG_52;
+        break;
+    case IMPEDANCE_400_OHMS:
+        maskPresetActiveTerminationImpedance = MASK_PRESET_ACTIVE_TERMINATION_400OHMS_REG_52;
+        break;
+    default:
+        maskPresetActiveTerminationImpedance = 0;
+        break;
+    }
+
+    uint16_t eraser = MASK_ERASER_PRESET_ACTIVE_TERMINATIONS_REG_52;
+    regValue = this->eraseAndApplyMask(regValue, maskPresetActiveTerminationImpedance, eraser);
 }
 
 std::string DaphneConfigCommandBuilder::configureAFEReg51(const AFE_NUMBER_t &afe, const REG_51_PARAMS_t &reg_51_params)

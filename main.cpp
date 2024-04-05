@@ -9,7 +9,9 @@ int main()
 
     REG_52_PARAMS_t afe_0_reg_52 = {
         .lna_gain_db = LNA_GAIN_24_DB,
-        .lna_integrator_enable = true};
+        .lna_integrator_enable = true,
+        .activeTerminationEnable = true,
+        .activeTerminationImpedance = IMPEDANCE_100_OHMS};
 
     REG_51_PARAMS_t afe_0_reg_51 = {
         .pga_gain_db = PGA_GAIN_30_DB,
