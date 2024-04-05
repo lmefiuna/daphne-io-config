@@ -51,8 +51,8 @@ std::string DaphneConfigCommandBuilder::configureAFEReg52(
     std::ostringstream ss;
     uint16_t reg_52_value = 0;
 
-    this->applyAFEReg52Mask_LNAGain(reg_52_value, reg_52_params.lna_gain_db);
-    this->applyAFEReg52Mask_LNAIntegrator(reg_52_value, reg_52_params.lna_integrator_enable);
+    this->applyReg52Mask_LNAGain(reg_52_value, reg_52_params.lna_gain_db);
+    this->applyReg52Mask_LNAIntegratorEnable(reg_52_value, reg_52_params.lna_integrator_enable);
     this->applyReg52Mask_activeTerminationEnable(reg_52_value, reg_52_params.activeTerminationEnable);
     this->applyReg52Mask_presetActiveTerminationImpedance(
         reg_52_value, reg_52_params.activeTerminationImpedance);
@@ -62,37 +62,37 @@ std::string DaphneConfigCommandBuilder::configureAFEReg52(
     return ss.str();
 }
 
-void DaphneConfigCommandBuilder::applyAFEReg52Mask_LNAGain(uint16_t &reg_value, const LNA_GAIN_DB_t &gain_db)
+void DaphneConfigCommandBuilder::applyReg52Mask_LNAGain(uint16_t &regValue, const LNA_GAIN_DB_t &gain_db)
 {
-    uint16_t lna_gain_mask;
+    uint16_t maskLNAGain;
 
     switch ((int)gain_db)
     {
     case LNA_GAIN_12_DB:
-        lna_gain_mask = MASK_LNA_GAIN_12DB_REG_52;
+        maskLNAGain = MASK_LNA_GAIN_12DB_REG_52;
         break;
     case LNA_GAIN_18_DB:
-        lna_gain_mask = MASK_LNA_GAIN_18DB_REG_52;
+        maskLNAGain = MASK_LNA_GAIN_18DB_REG_52;
         break;
     case LNA_GAIN_24_DB:
-        lna_gain_mask = MASK_LNA_GAIN_24DB_REG_52;
+        maskLNAGain = MASK_LNA_GAIN_24DB_REG_52;
         break;
     default:
-        lna_gain_mask = 0;
+        maskLNAGain = 0;
         break;
     }
 
     uint16_t eraser = MASK_ERASER_LNA_GAIN_CONTROL_REG_52;
-    reg_value = this->eraseAndApplyMask(reg_value, lna_gain_mask, eraser);
+    regValue = this->eraseAndApplyMask(regValue, maskLNAGain, eraser);
 }
 
-void DaphneConfigCommandBuilder::applyAFEReg52Mask_LNAIntegrator(uint16_t &reg_value, const bool &enable)
+void DaphneConfigCommandBuilder::applyReg52Mask_LNAIntegratorEnable(uint16_t &regValue, const bool &enable)
 {
-    uint16_t lna_integrator_mask =
+    uint16_t maskLNAIntegratorEnable =
         (enable) ? MASK_LNA_INTEGRATOR_EN_REG_52 : MASK_LNA_INTEGRATOR_DIS_REG_52;
 
     uint16_t eraser = MASK_ERASER_LNA_INTEGRATOR_REG_52;
-    reg_value = this->eraseAndApplyMask(reg_value, lna_integrator_mask, eraser);
+    regValue = this->eraseAndApplyMask(regValue, maskLNAIntegratorEnable, eraser);
 }
 
 void DaphneConfigCommandBuilder::applyReg52Mask_activeTerminationEnable(uint16_t &regValue, const bool &enable)
@@ -136,41 +136,41 @@ std::string DaphneConfigCommandBuilder::configureAFEReg51(const AFE_NUMBER_t &af
     std::ostringstream ss;
     uint16_t reg_51_value = 0;
 
-    this->applyAFEReg51Mask_PGAGain(reg_51_value, reg_51_params.pga_gain_db);
-    this->applyAFEReg51Mask_PGAIntegrator(reg_51_value, reg_51_params.pga_integrator_enable);
+    this->applyReg51Mask_PGAGain(reg_51_value, reg_51_params.pga_gain_db);
+    this->applyReg51Mask_PGAIntegratorEnable(reg_51_value, reg_51_params.pga_integrator_enable);
 
     ss << "WR AFE " << (int)afe << " REG 51 V " << reg_51_value << "\r\n";
 
     return ss.str();
 }
 
-void DaphneConfigCommandBuilder::applyAFEReg51Mask_PGAGain(uint16_t &reg_value, const PGA_GAIN_DB_t &gain_db)
+void DaphneConfigCommandBuilder::applyReg51Mask_PGAGain(uint16_t &regValue, const PGA_GAIN_DB_t &gain_db)
 {
-    uint16_t pga_gain_mask;
+    uint16_t maskPGAGain;
     switch ((int)gain_db)
     {
     case PGA_GAIN_24_DB:
-        pga_gain_mask = MASK_PGA_GAIN_24DB_CONTROL_REG_51;
+        maskPGAGain = MASK_PGA_GAIN_24DB_CONTROL_REG_51;
         break;
     case PGA_GAIN_30_DB:
-        pga_gain_mask = MASK_PGA_GAIN_30DB_CONTROL_REG_51;
+        maskPGAGain = MASK_PGA_GAIN_30DB_CONTROL_REG_51;
         break;
     default:
-        pga_gain_mask = 0;
+        maskPGAGain = 0;
         break;
     }
 
     uint16_t eraser = MASK_ERASER_PGA_GAIN_CONTROL_REG_51;
-    reg_value = this->eraseAndApplyMask(reg_value, pga_gain_mask, eraser);
+    regValue = this->eraseAndApplyMask(regValue, maskPGAGain, eraser);
 }
 
-void DaphneConfigCommandBuilder::applyAFEReg51Mask_PGAIntegrator(uint16_t &reg_value, const bool &enable)
+void DaphneConfigCommandBuilder::applyReg51Mask_PGAIntegratorEnable(uint16_t &regValue, const bool &enable)
 {
-    uint16_t pga_integrator_mask =
+    uint16_t maskPGAIntegratorEnable =
         (enable) ? MASK_PGA_INTEGRATOR_EN_REG_51 : MASK_PGA_INTEGRATOR_DIS_REG_51;
 
     uint16_t eraser = MASK_ERASER_PGA_INTEGRATOR_REG_51;
-    reg_value = this->eraseAndApplyMask(reg_value, pga_integrator_mask, eraser);
+    regValue = this->eraseAndApplyMask(regValue, maskPGAIntegratorEnable, eraser);
 }
 
 uint16_t DaphneConfigCommandBuilder::eraseAndApplyMask(uint16_t &reg, uint16_t &mask, uint16_t &eraser)

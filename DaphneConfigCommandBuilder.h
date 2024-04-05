@@ -19,14 +19,14 @@ public:
 private:
     int calculateAFEVGainReferenceValue(const double vgain_volts);
 
-    void applyAFEReg52Mask_LNAGain(uint16_t &reg_value, const LNA_GAIN_DB_t &gain_db);
-    void applyAFEReg52Mask_LNAIntegrator(uint16_t &reg_value, const bool &enable);
-    void applyReg52Mask_activeTerminationEnable(uint16_t &reg_value, const bool &enable);
+    void applyReg52Mask_LNAGain(uint16_t &regValue, const LNA_GAIN_DB_t &gain_db);
+    void applyReg52Mask_LNAIntegratorEnable(uint16_t &regValue, const bool &enable);
+    void applyReg52Mask_activeTerminationEnable(uint16_t &regValue, const bool &enable);
     void applyReg52Mask_presetActiveTerminationImpedance(
-        uint16_t &reg_value, const PRESET_ACTIVE_TERMINATION_IMPEDANCE_t &impedance);
+        uint16_t &regValue, const PRESET_ACTIVE_TERMINATION_IMPEDANCE_t &impedance);
 
-    void applyAFEReg51Mask_PGAGain(uint16_t &reg_value, const PGA_GAIN_DB_t &gain_db);
-    void applyAFEReg51Mask_PGAIntegrator(uint16_t &reg_value, const bool &enable);
+    void applyReg51Mask_PGAGain(uint16_t &regValue, const PGA_GAIN_DB_t &gain_db);
+    void applyReg51Mask_PGAIntegratorEnable(uint16_t &regValue, const bool &enable);
 
     uint16_t eraseAndApplyMask(uint16_t &reg, uint16_t &mask, uint16_t &eraser);
 };
