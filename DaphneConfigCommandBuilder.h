@@ -28,6 +28,8 @@ private:
 
     void applyReg51Mask_PGAGain(uint16_t &regValue, const PGA_GAIN_DB_t &gain_db);
     void applyReg51Mask_PGAIntegratorEnable(uint16_t &regValue, const bool &enable);
+    void applyReg51Mask_PGAClampLevel(uint16_t &regValue, const PGA_CLAMP_LEVEL_DBFS_t &PGAClampLevel);
+    void applyReg51Mask_LPFFrequency(uint16_t &regValue, const LPF_FREQUENCY_t &frequency_MHz);
 
     uint16_t eraseAndApplyMask(uint16_t &reg, uint16_t &mask, uint16_t &eraser);
 };

@@ -78,6 +78,21 @@ typedef enum
 
 typedef enum
 {
+    PGA_CLAMP_NEG_2_DBFS,
+    PGA_CLAMP_0_DBFS,
+    PGA_CLAMP_DISABLED
+} PGA_CLAMP_LEVEL_DBFS_t;
+
+typedef enum
+{
+    LPF_FREQ_15_MHZ,
+    LPF_FREQ_20_MHZ,
+    LPF_FREQ_30_MHZ,
+    LPF_FREQ_10_MHZ
+} LPF_FREQUENCY_t;
+
+typedef enum
+{
     IMPEDANCE_50_OHMS,
     IMPEDANCE_100_OHMS,
     IMPEDANCE_200_OHMS,
@@ -97,6 +112,8 @@ typedef struct
 {
     PGA_GAIN_DB_t pga_gain_db;
     bool pga_integrator_enable;
+    PGA_CLAMP_LEVEL_DBFS_t PGAClampLevel;
+    LPF_FREQUENCY_t LPFFrequency_MHz;
 } REG_51_PARAMS_t;
 
 #endif

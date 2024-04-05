@@ -16,7 +16,9 @@ int main()
 
     REG_51_PARAMS_t afe_0_reg_51 = {
         .pga_gain_db = PGA_GAIN_30_DB,
-        .pga_integrator_enable = true};
+        .pga_integrator_enable = true,
+        .PGAClampLevel = PGA_CLAMP_NEG_2_DBFS,
+        .LPFFrequency_MHz = LPF_FREQ_10_MHZ};
 
     outputCommands << commandBuilder.enableChannelOffsetGain(CHANNEL_0, false);
     outputCommands << commandBuilder.applyChannelOffsetVoltage_mV(CHANNEL_0, 2300);

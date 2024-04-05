@@ -166,6 +166,8 @@ std::string DaphneConfigCommandBuilder::configureAFEReg51(const AFE_NUMBER_t &af
 
     this->applyReg51Mask_PGAGain(reg_51_value, reg_51_params.pga_gain_db);
     this->applyReg51Mask_PGAIntegratorEnable(reg_51_value, reg_51_params.pga_integrator_enable);
+    this->applyReg51Mask_PGAClampLevel(reg_51_value, reg_51_params.PGAClampLevel);
+    this->applyReg51Mask_LPFFrequency(reg_51_value, reg_51_params.LPFFrequency_MHz);
 
     ss << "WR AFE " << (int)afe << " REG 51 V " << reg_51_value << "\r\n";
 
@@ -199,6 +201,56 @@ void DaphneConfigCommandBuilder::applyReg51Mask_PGAIntegratorEnable(uint16_t &re
 
     uint16_t eraser = MASK_ERASER_PGA_INTEGRATOR_REG_51;
     regValue = this->eraseAndApplyMask(regValue, maskPGAIntegratorEnable, eraser);
+}
+
+void DaphneConfigCommandBuilder::applyReg51Mask_PGAClampLevel(
+    uint16_t &regValue, const PGA_CLAMP_LEVEL_DBFS_t &PGAClampLevel)
+{
+    uint16_t maskPGAClampLevel;
+    switch ((int)PGAClampLevel)
+    {
+    case PGA_CLAMP_NEG_2_DBFS:
+        maskPGAClampLevel = MASK_PGA_CLAMP_LEVEL_N2DBFS_REG_51;
+        break;
+    case PGA_CLAMP_0_DBFS:
+        maskPGAClampLevel = MASK_PGA_CLAMP_LEVEL_0DBFS_REG_51;
+        break;
+    case PGA_CLAMP_DISABLED:
+        maskPGAClampLevel = MASK_PGA_CLAMP_LEVEL_DISABLED_REG_51;
+        break;
+    default:
+        maskPGAClampLevel = 0;
+        break;
+    }
+
+    uint16_t eraser = MASK_ERASER_PGA_CLAMP_LEVEL_REG_51;
+    regValue = this->eraseAndApplyMask(regValue, maskPGAClampLevel, eraser);
+}
+
+void DaphneConfigCommandBuilder::applyReg51Mask_LPFFrequency(uint16_t &regValue, const LPF_FREQUENCY_t &frequency_MHz)
+{
+    uint16_t maskLPFFrequency;
+    switch ((int)frequency_MHz)
+    {
+    case LPF_FREQ_10_MHZ:
+        maskLPFFrequency = MASK_LPF_10MHZ_PROGRAMABILITY_REG_51;
+        break;
+    case LPF_FREQ_15_MHZ:
+        maskLPFFrequency = MASK_LPF_15MHZ_PROGRAMABILITY_REG_51;
+        break;
+    case LPF_FREQ_20_MHZ:
+        maskLPFFrequency = MASK_LPF_20MHZ_PROGRAMABILITY_REG_51;
+        break;
+    case LPF_FREQ_30_MHZ:
+        maskLPFFrequency = MASK_LPF_30MHZ_PROGRAMABILITY_REG_51;
+        break;
+    default:
+        maskLPFFrequency = 0;
+        break;
+    }
+
+    uint16_t eraser = MASK_ERASER_LPF_REG_51;
+    regValue = this->eraseAndApplyMask(regValue, maskLPFFrequency, eraser);
 }
 
 uint16_t DaphneConfigCommandBuilder::eraseAndApplyMask(uint16_t &reg, uint16_t &mask, uint16_t &eraser)
