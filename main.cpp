@@ -11,7 +11,8 @@ int main()
         .lna_gain_db = LNA_GAIN_24_DB,
         .lna_integrator_enable = true,
         .activeTerminationEnable = true,
-        .activeTerminationImpedance = IMPEDANCE_100_OHMS};
+        .activeTerminationImpedance = IMPEDANCE_100_OHMS,
+        .LNAClampLevel = LNA_CLAMP_1_5_VPP};
 
     REG_51_PARAMS_t afe_0_reg_51 = {
         .pga_gain_db = PGA_GAIN_30_DB,

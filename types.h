@@ -64,6 +64,14 @@ typedef enum
 
 typedef enum
 {
+    LNA_CLAMP_AUTO,
+    LNA_CLAMP_1_5_VPP,
+    LNA_CLAMP_1_15_VPP,
+    LNA_CLAMP_0_6_VPP
+} LNA_CLAMP_LEVEL_t;
+
+typedef enum
+{
     PGA_GAIN_24_DB,
     PGA_GAIN_30_DB
 } PGA_GAIN_DB_t;
@@ -82,6 +90,7 @@ typedef struct
     bool lna_integrator_enable;
     bool activeTerminationEnable;
     PRESET_ACTIVE_TERMINATION_IMPEDANCE_t activeTerminationImpedance;
+    LNA_CLAMP_LEVEL_t LNAClampLevel;
 } REG_52_PARAMS_t;
 
 typedef struct

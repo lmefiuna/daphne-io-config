@@ -21,6 +21,7 @@ private:
 
     void applyReg52Mask_LNAGain(uint16_t &regValue, const LNA_GAIN_DB_t &gain_db);
     void applyReg52Mask_LNAIntegratorEnable(uint16_t &regValue, const bool &enable);
+    void applyReg52Mask_LNAClampLevel(uint16_t &regValue, const LNA_CLAMP_LEVEL_t &LNAClampLevel);
     void applyReg52Mask_activeTerminationEnable(uint16_t &regValue, const bool &enable);
     void applyReg52Mask_presetActiveTerminationImpedance(
         uint16_t &regValue, const PRESET_ACTIVE_TERMINATION_IMPEDANCE_t &impedance);

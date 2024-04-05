@@ -53,6 +53,7 @@ std::string DaphneConfigCommandBuilder::configureAFEReg52(
 
     this->applyReg52Mask_LNAGain(reg_52_value, reg_52_params.lna_gain_db);
     this->applyReg52Mask_LNAIntegratorEnable(reg_52_value, reg_52_params.lna_integrator_enable);
+    this->applyReg52Mask_LNAClampLevel(reg_52_value, reg_52_params.LNAClampLevel);
     this->applyReg52Mask_activeTerminationEnable(reg_52_value, reg_52_params.activeTerminationEnable);
     this->applyReg52Mask_presetActiveTerminationImpedance(
         reg_52_value, reg_52_params.activeTerminationImpedance);
@@ -93,6 +94,33 @@ void DaphneConfigCommandBuilder::applyReg52Mask_LNAIntegratorEnable(uint16_t &re
 
     uint16_t eraser = MASK_ERASER_LNA_INTEGRATOR_REG_52;
     regValue = this->eraseAndApplyMask(regValue, maskLNAIntegratorEnable, eraser);
+}
+
+void DaphneConfigCommandBuilder::applyReg52Mask_LNAClampLevel(
+    uint16_t &regValue, const LNA_CLAMP_LEVEL_t &LNAClampLevel)
+{
+    uint16_t maskLNAClampLevel;
+    switch ((int)LNAClampLevel)
+    {
+    case 0:
+        maskLNAClampLevel = MASK_LNA_CLAMP_LEVEL_AUTO_REG_52;
+        break;
+    case 1:
+        maskLNAClampLevel = MASK_LNA_CLAMP_LEVEL_15VPP_REG_52;
+        break;
+    case 2:
+        maskLNAClampLevel = MASK_LNA_CLAMP_LEVEL_115VPP_REG_52;
+        break;
+    case 3:
+        maskLNAClampLevel = MASK_LNA_CLAMP_LEVEL_06VPP_REG_52;
+        break;
+    default:
+        maskLNAClampLevel = 0;
+        break;
+    }
+
+    uint16_t eraser = MASK_ERASER_LNA_CLAMP_LEVEL_REG_52;
+    regValue = this->eraseAndApplyMask(regValue, maskLNAClampLevel, eraser);
 }
 
 void DaphneConfigCommandBuilder::applyReg52Mask_activeTerminationEnable(uint16_t &regValue, const bool &enable)
