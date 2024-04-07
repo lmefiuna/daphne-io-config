@@ -103,18 +103,18 @@ typedef enum
 
 typedef struct
 {
-  LNA_GAIN_DB_t                         lna_gain_db;
-  bool                                  lna_integrator_enable;
+  LNA_GAIN_DB_t                         LNAGain_dB;
+  bool                                  LNAIntegratorEnable;
   bool                                  activeTerminationEnable;
-  PRESET_ACTIVE_TERMINATION_IMPEDANCE_t activeTerminationImpedance;
-  LNA_CLAMP_LEVEL_t                     LNAClampLevel;
+  PRESET_ACTIVE_TERMINATION_IMPEDANCE_t presetActiveTerminationImpedance;
+  LNA_CLAMP_LEVEL_t                     LNAClampLevel_Vpp;
 } REG_52_PARAMS_t;
 
 typedef struct
 {
-  PGA_GAIN_DB_t          pga_gain_db;
-  bool                   pga_integrator_enable;
-  PGA_CLAMP_LEVEL_DBFS_t PGAClampLevel;
+  PGA_GAIN_DB_t          PGAGain_dB;
+  bool                   PGAIntegratorEnable;
+  PGA_CLAMP_LEVEL_DBFS_t PGAClampLevel_dBFS;
   LPF_FREQUENCY_t        LPFFrequency_MHz;
 } REG_51_PARAMS_t;
 
@@ -151,6 +151,5 @@ typedef struct
 typedef struct
 {
 } REG_59_PARAMS_t;
-
 }  // namespace DAPHNE
 #endif

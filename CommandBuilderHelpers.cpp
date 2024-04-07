@@ -47,10 +47,10 @@ void applyReg52Mask_LNAIntegratorEnable(uint16_t &regValue, const bool &enable)
   regValue = eraseAndApplyMask(regValue, maskLNAIntegratorEnable, eraser);
 }
 
-void applyReg52Mask_LNAClampLevel(uint16_t &regValue, const LNA_CLAMP_LEVEL_t &LNAClampLevel)
+void applyReg52Mask_LNAClampLevel(uint16_t &regValue, const LNA_CLAMP_LEVEL_t &LNAClampLevel_Vpp)
 {
   uint16_t maskLNAClampLevel;
-  switch ((int)LNAClampLevel)
+  switch ((int)LNAClampLevel_Vpp)
   {
     case 0:
       maskLNAClampLevel = MASK_LNA_CLAMP_LEVEL_AUTO_REG_52;
@@ -138,10 +138,10 @@ void applyReg51Mask_PGAIntegratorEnable(uint16_t &regValue, const bool &enable)
   regValue = eraseAndApplyMask(regValue, maskPGAIntegratorEnable, eraser);
 }
 
-void applyReg51Mask_PGAClampLevel(uint16_t &regValue, const PGA_CLAMP_LEVEL_DBFS_t &PGAClampLevel)
+void applyReg51Mask_PGAClampLevel(uint16_t &regValue, const PGA_CLAMP_LEVEL_DBFS_t &PGAClampLevel_dBFS)
 {
   uint16_t maskPGAClampLevel;
-  switch ((int)PGAClampLevel)
+  switch ((int)PGAClampLevel_dBFS)
   {
     case PGA_CLAMP_NEG_2_DBFS:
       maskPGAClampLevel = MASK_PGA_CLAMP_LEVEL_N2DBFS_REG_51;

@@ -1,14 +1,13 @@
-#ifndef IncConfig
-#define IncConfig
+#ifndef _CONFIG_PARSER_
+#define _CONFIG_PARSER_
 
 #include <list>
 #include <map>
 #include <string>
 
-using namespace std;
-
 /*
-   Config
+   Adapted from: https://www.codeproject.com/Articles/26145/A-C-Config-File-Parser
+   ConfigReader
 
    Parse structured config files
 
@@ -31,67 +30,80 @@ using namespace std;
    or by calling exit() for severe errors. Depending on project needs this may be replaced
    by exeptions, error return codes, ...
  */
-
-class Config
+namespace DAPHNE
+{
+namespace ConfigReader
+{
+class ConfigParser
 {
  public:
   /* Parse config file 'configFile'. If the process environment
    * is provided, environment variables can be used as expansion symbols.
    */
-  Config(string configFile, char** envp = 0);
+  ConfigParser(std::string configFile, char** envp = 0);
 
-  ~Config();
+  ~ConfigParser();
 
   // get string config entry
-  string pString(string name);
+  std::string pString(std::string name);
 
   /* get boolean config entry
    * A value of Yes/yes/YES/true/True/TRUE leads to true,
    * all other values leads to false.
    */
-  bool pBool(string name);
+  bool pBool(std::string name);
 
   // get double config entry; value is parsed using atof()
-  double pDouble(string name);
+  double pDouble(std::string name);
 
   // get int config entry; value is parsed using atoi()
-  int pInt(string name);
+  int pInt(std::string name);
 
   // get the symbol map (e.g. for iterating over all symbols)
-  inline map<string, string>& getSymbols() { return symbols; }
+  inline std::map<std::string, std::string>& getSymbols()
+  {
+    return symbols;
+  }
 
   // get config sub group
-  inline Config* group(string name) { return groups[name]; }
+  inline ConfigParser* group(std::string name)
+  {
+    return groups[name];
+  }
 
   // get config sub group map (e.g. for iterating over all groups)
-  inline map<string, Config*>& getGroups() { return groups; }
+  inline std::map<std::string, ConfigParser*>& getGroups()
+  {
+    return groups;
+  }
 
  private:
   // private constructor for sub groups
-  Config(string name, string parentDebugInfo);
+  ConfigParser(std::string name, std::string parentDebugInfo);
 
   // helper functions for parsing
-  void add(string name, string value);
-  void split(string in, string& left, string& right, char c);
-  void trim(string& s);
-  void symbolExpand(string& s);
-  void symbolExpand(map<string, string>& symbols, string& s);
-  void envSymbolExpand(string& s);
+  void add(std::string name, std::string value);
+  void split(std::string in, std::string& left, std::string& right, char c);
+  void trim(std::string& s);
+  void symbolExpand(std::string& s);
+  void symbolExpand(std::map<std::string, std::string>& symbols, std::string& s);
+  void envSymbolExpand(std::string& s);
 
   // config group symbol map
-  map<string, string> symbols;
+  std::map<std::string, std::string> symbols;
 
   // environment symbol map
-  map<string, string> envSymbols;
+  std::map<std::string, std::string> envSymbols;
 
   // config sub group map
-  map<string, Config*> groups;
+  std::map<std::string, ConfigParser*> groups;
 
   // stack of config groups for parsing (only used in top config element)
-  list<Config*> groupStack;
+  std::list<ConfigParser*> groupStack;
 
   // debug info used for logging messages
-  string debugInfo;
+  std::string debugInfo;
 };
-
+}  // namespace ConfigReader
+}  // namespace DAPHNE
 #endif
