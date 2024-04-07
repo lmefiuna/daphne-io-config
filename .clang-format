@@ -1,0 +1,32 @@
+# BasedOnStyle: The base style that this configuration is based on.
+# Inheritance applies in this order: LLVM, Google, Chromium, Mozilla, WebKit.
+# You can also use 'file' to specify a configuration file to inherit from.
+BasedOnStyle: Google
+
+# AlignConsecutiveDeclarations: Aligns consecutive declarations.
+# It's useful for aligning variables with their types.
+AlignConsecutiveDeclarations: true
+AlignConsecutiveMacros: true
+
+# IndentWidth: Number of spaces for each level of indentation.
+IndentWidth: 2
+
+# TabWidth: Number of spaces that each tab character represents.
+TabWidth: 2
+
+# UseTab: If true, use tabs instead of spaces for indentation.
+UseTab: Never
+
+# ColumnLimit: The column limit.
+ColumnLimit: 100
+
+# PenaltyBreakBeforeFirstCallParameter: The penalty for breaking before the first call parameter.
+PenaltyBreakBeforeFirstCallParameter: 1
+
+# AlignAfterOpenBracket: Whether to align the trailing comments after an open bracket.
+AlignAfterOpenBracket: AlwaysBreak
+
+# AlignOperands: Aligns operands of binary and ternary expressions.
+AlignOperands: true
+
+BreakBeforeBraces: Allman
