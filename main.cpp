@@ -1,7 +1,9 @@
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include "DaphneConfigCommandBuilder.h"
 #include "types.h"
+
 int main()
 {
     std::ostringstream outputCommands;
@@ -27,7 +29,7 @@ int main()
     REG_1_PARAMS_t afe_0_reg_1 = {};
     REG_21_PARAMS_t afe_0_reg_21 = {};
     REG_33_PARAMS_t afe_0_reg_33 = {};
-    REG_33_PARAMS_t afe_0_reg_59 = {};
+    REG_59_PARAMS_t afe_0_reg_59 = {};
 
     outputCommands << commandBuilder.configureAFEReg52(AFE_0, afe_0_reg_52);
     outputCommands << commandBuilder.configureAFEReg51(AFE_0, afe_0_reg_51);
@@ -35,13 +37,25 @@ int main()
     outputCommands << commandBuilder.configureAFEReg1(AFE_0, afe_0_reg_1);
     outputCommands << commandBuilder.configureAFEReg21(AFE_0, afe_0_reg_21);
     outputCommands << commandBuilder.configureAFEReg33(AFE_0, afe_0_reg_33);
-    outputCommands << commandBuilder.configureAFEReg33(AFE_0, afe_0_reg_59);
+    outputCommands << commandBuilder.configureAFEReg59(AFE_0, afe_0_reg_59);
     outputCommands << commandBuilder.enableChannelOffsetGain(CHANNEL_0, true);
     outputCommands << commandBuilder.applyChannelOffsetVoltage_mV(CHANNEL_0, 2300);
     outputCommands << commandBuilder.applyAFEGain_V(AFE_0, 0.70);
     outputCommands << commandBuilder.FPGAReset();
 
     std::cout << outputCommands.str();
+
+    std::ofstream mFile("output.txt");
+    if (mFile.is_open())
+    {
+        mFile << outputCommands.str();
+        mFile.close();
+        std::cout << "Content written to file successfully." << std::endl;
+    }
+    else
+    {
+        std::cerr << "Error: Unable to open file." << std::endl;
+    }
 
     return 0;
 }
