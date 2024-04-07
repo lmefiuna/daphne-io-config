@@ -30,3 +30,5 @@ AlignAfterOpenBracket: AlwaysBreak
 AlignOperands: true
 
 BreakBeforeBraces: Allman
+
+AllowShortFunctionsOnASingleLine: Empty

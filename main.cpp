@@ -2,13 +2,13 @@
 #include <iostream>
 #include <sstream>
 
-#include "DaphneConfigCommandBuilder.h"
+#include "CommandBuilder.h"
 #include "types.h"
 
+using namespace DAPHNE;
 int main()
 {
-  std::ostringstream         outputCommands;
-  DaphneConfigCommandBuilder commandBuilder;
+  std::ostringstream outputCommands;
 
   REG_52_PARAMS_t afe_0_reg_52 = {
       .lna_gain_db = LNA_GAIN_12_DB,
@@ -31,17 +31,17 @@ int main()
   REG_33_PARAMS_t afe_0_reg_33 = {};
   REG_59_PARAMS_t afe_0_reg_59 = {};
 
-  outputCommands << commandBuilder.configureAFEReg52(AFE_0, afe_0_reg_52);
-  outputCommands << commandBuilder.configureAFEReg51(AFE_0, afe_0_reg_51);
-  outputCommands << commandBuilder.configureAFEReg4(AFE_0, afe_0_reg_4);
-  outputCommands << commandBuilder.configureAFEReg1(AFE_0, afe_0_reg_1);
-  outputCommands << commandBuilder.configureAFEReg21(AFE_0, afe_0_reg_21);
-  outputCommands << commandBuilder.configureAFEReg33(AFE_0, afe_0_reg_33);
-  outputCommands << commandBuilder.configureAFEReg59(AFE_0, afe_0_reg_59);
-  outputCommands << commandBuilder.enableChannelOffsetGain(CHANNEL_0, true);
-  outputCommands << commandBuilder.applyChannelOffsetVoltage_mV(CHANNEL_0, 2300);
-  outputCommands << commandBuilder.applyAFEGain_V(AFE_0, 0.70);
-  outputCommands << commandBuilder.FPGAReset();
+  outputCommands << CommandBuilder::configureAFEReg52(AFE_0, afe_0_reg_52);
+  outputCommands << CommandBuilder::configureAFEReg51(AFE_0, afe_0_reg_51);
+  outputCommands << CommandBuilder::configureAFEReg4(AFE_0, afe_0_reg_4);
+  outputCommands << CommandBuilder::configureAFEReg1(AFE_0, afe_0_reg_1);
+  outputCommands << CommandBuilder::configureAFEReg21(AFE_0, afe_0_reg_21);
+  outputCommands << CommandBuilder::configureAFEReg33(AFE_0, afe_0_reg_33);
+  outputCommands << CommandBuilder::configureAFEReg59(AFE_0, afe_0_reg_59);
+  outputCommands << CommandBuilder::enableChannelOffsetGain(CHANNEL_0, true);
+  outputCommands << CommandBuilder::applyChannelOffsetVoltage_mV(CHANNEL_0, 2300);
+  outputCommands << CommandBuilder::applyAFEGain_V(AFE_0, 0.70);
+  outputCommands << CommandBuilder::FPGAReset();
 
   std::cout << outputCommands.str();
 

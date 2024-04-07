@@ -1,6 +1,8 @@
 #ifndef _types_h_
 #define _types_h_
 
+namespace DAPHNE
+{
 typedef enum
 {
   AFE_0 = 0,
@@ -150,4 +152,5 @@ typedef struct
 {
 } REG_59_PARAMS_t;
 
+}  // namespace DAPHNE
 #endif
