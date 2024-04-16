@@ -30,8 +30,11 @@ void configure_port(int* file_descriptor);
 int send_command(int* file_descriptor, const char* command);
 
 /*
- * 'read_response(&fd, buffer, BUFFER_SIZE)' -
- * Returns 0 if response ends with "success" or "done".
+ * 'read_response(&fd, buffer, BUFFER_SIZE)' - Reads response and parse success
+ *                                             or failure.
+ *
+ * Assumes response ends with "\n\n\n\n>"
+ * Returns 0 if response ends with "success" or "done", else -1.
  */
 int read_response(int* fd, char buffer[], const int buffer_size);
 

@@ -56,6 +56,8 @@ int send_command(int* fd, const char* command)
   const int bytes_to_send = (int)strlen(command);
   int       sent_bytes;
 
+  printf("send_command: %s", command);
+
   for (tries = 0; tries < MAXIMUM_RETRIES; ++tries)
   {
     sent_bytes = write(*fd, command, bytes_to_send);
@@ -65,6 +67,8 @@ int send_command(int* fd, const char* command)
     }
     return (0);
   }
+
+  fprintf(stderr, "Could not send command %s", command);
   return (-1);
 }
 
@@ -91,24 +95,25 @@ int read_response(int* fd, char buffer[], const int buffer_size)
   }
 
   *buffer_pointer = '\0';
-
-  char* ps;
-  for (ps = buffer; *ps != '\0'; ++ps)
-  {
-    *ps = *(ps + 5);
-  }
-
   int response_length = strlen(buffer);
-  // printf("response last part: %s\n", &buffer[response_length - 4]);
-  if (strcmp(&buffer[response_length - 4], "done") == 0)
+  if ((strcmp(&buffer[response_length - 4], "done") == 0) ||
+      (strcmp(&buffer[response_length - 7], "success") == 0))
   {
+    /* delete first 5 chars: "\n\n>\n\n" */
+    char* ps;
+    for (ps = buffer; *ps != '\0'; ++ps)
+    {
+      *ps = *(ps + 5);
+    }
+
+    printf("read_response: %s\n", buffer);
     return (0);
   }
-  if (strcmp(&buffer[response_length - 7], "success") == 0)
-  {
-    return (0);
-  }
+
+  fprintf(
+      stderr,
+      "read_response: command was not executed succesfully or did not"
+      " get proper response. Response: %s\n",
+      buffer);
   return (-1);
-  // printf("strcpm con done: %d\n", strcmp(&buffer[response_length - 4], "done"));
-  // printf("strcpm con success: %d\n", strcmp(&buffer[response_length - 7], "success"));
 }

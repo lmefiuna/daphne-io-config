@@ -15,13 +15,12 @@ int main()
 
   const char  serial_port[] = "/dev/ttyUSB0";
   const char *commands[] = {
-      "CFG FPGA RESET\r\n\0", "WR AFE 0 REG 52 V 17216\r\n\0", "WR AFE 0 REG 51 V 8\r\n\0",
-      "WR AFE 0 REG 4 V 24\r\n\0"};
+      "WR AFE 0 REG 52 V 17216\r\n\0", "WR AFE 0 REG 51 V 8\r\n\0", "WR AFE 0 REG 4 V 24\r\n\0"};
 
   fd = open_port(serial_port);
   configure_port(&fd);
 
-  const int BUFFER_SIZE = 255;
+  const int BUFFER_SIZE = 127;
   char      buffer[BUFFER_SIZE];
 
   const int TOTAL_COMMANDS = sizeof(commands) / sizeof(commands[0]);
@@ -29,18 +28,11 @@ int main()
 
   for (i = 0; i < TOTAL_COMMANDS; ++i)
   {
-    printf("Sending command: %s", commands[i]);
     if (send_command(&fd, commands[i]) == -1)
     {
-      fprintf(stderr, "Could not send command %s", commands[i]);
       continue;
     }
-
-    if (read_response(&fd, buffer, BUFFER_SIZE) == -1)
-    {
-      printf("Command %s was not received successfully or did not get response\n", commands[i]);
-    }
-    printf("Response: %s\n", buffer);
+    read_response(&fd, buffer, BUFFER_SIZE);
   }
 
   close(fd);
