@@ -13,47 +13,34 @@ int main()
 {
   int fd;
 
-  const char serial_port[] = "/dev/ttyUSB0";
-  const char command[] = "CFG FPGA RESET\r\n";
+  const char  serial_port[] = "/dev/ttyUSB0";
+  const char *commands[] = {
+      "CFG FPGA RESET\r\n\0", "WR AFE 0 REG 52 V 17216\r\n\0", "WR AFE 0 REG 51 V 8\r\n\0",
+      "WR AFE 0 REG 4 V 24\r\n\0"};
 
   fd = open_port(serial_port);
   configure_port(&fd);
 
-  char  buffer[255];    /* Input buffer */
-  char *buffer_pointer; /* Current char in buffer */
-  int   nbytes;         /* Number of bytes read */
+  const int BUFFER_SIZE = 255;
+  char      buffer[BUFFER_SIZE];
 
-  /* wait for uC to stabilize properly */
-  // sleep(2);
+  const int TOTAL_COMMANDS = sizeof(commands) / sizeof(commands[0]);
+  int       i;
 
-  int bytes_to_send = sizeof(command) / sizeof(command[0]);
-
-  int sent_bytes = write(fd, command, bytes_to_send);
-  if (sent_bytes < bytes_to_send)
+  for (i = 0; i < TOTAL_COMMANDS; ++i)
   {
-    printf("Error al enviar datos\n");
-  }
-  else
-  {
-    buffer_pointer = buffer;
-    while ((nbytes = read(fd, buffer_pointer, buffer + sizeof(buffer) - buffer_pointer - 1)) > 0)
+    printf("Sending command: %s", commands[i]);
+    if (send_command(&fd, commands[i]) == -1)
     {
-      buffer_pointer += nbytes;
-
-      /* uC response ends in "\r\n\n\r>" */
-      if (buffer_pointer - buffer > 5)
-      {
-        if (buffer_pointer[-5] == '\n' && buffer_pointer[-4] == '\n' &&
-            buffer_pointer[-3] == '\n' && buffer_pointer[-2] == '\n' && buffer_pointer[-1] == '>')
-        {
-          buffer_pointer -= 5;
-          break;
-        }
-      }
+      fprintf(stderr, "Could not send command %s", commands[i]);
+      continue;
     }
 
-    *buffer_pointer = '\0';
-    printf("Received: %s\n", buffer + 5);
+    if (read_response(&fd, buffer, BUFFER_SIZE) == -1)
+    {
+      printf("Command %s was not received successfully or did not get response\n", commands[i]);
+    }
+    printf("Response: %s\n", buffer);
   }
 
   close(fd);
