@@ -23,6 +23,8 @@ typedef struct
   int ch_offset_voltage_mV[NUMBER_CHANNELS];
 } DaphneConfig_t;
 
+void SetDefaultConfiguration(DaphneConfig_t *DaphneConfig);
+
 int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig);
 
 #endif

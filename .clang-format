@@ -29,6 +29,6 @@ AlignAfterOpenBracket: AlwaysBreak
 # AlignOperands: Aligns operands of binary and ternary expressions.
 AlignOperands: true
 
-BreakBeforeBraces: Allman
+BreakBeforeBraces: Attach
 
 AllowShortFunctionsOnASingleLine: Empty
