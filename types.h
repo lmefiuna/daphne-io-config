@@ -1,8 +1,8 @@
 #ifndef _types_h_
 #define _types_h_
 
-namespace DAPHNE
-{
+// namespace DAPHNE
+// {
 typedef enum
 {
   AFE_0 = 0,
@@ -104,8 +104,8 @@ typedef enum
 typedef struct
 {
   LNA_GAIN_DB_t                         LNAGain_dB;
-  bool                                  LNAIntegratorEnable;
-  bool                                  activeTerminationEnable;
+  int                                   LNAIntegratorEnable;
+  int                                   activeTerminationEnable;
   PRESET_ACTIVE_TERMINATION_IMPEDANCE_t presetActiveTerminationImpedance;
   LNA_CLAMP_LEVEL_t                     LNAClampLevel_Vpp;
 } REG_52_PARAMS_t;
@@ -113,7 +113,7 @@ typedef struct
 typedef struct
 {
   PGA_GAIN_DB_t          PGAGain_dB;
-  bool                   PGAIntegratorEnable;
+  int                    PGAIntegratorEnable;
   PGA_CLAMP_LEVEL_DBFS_t PGAClampLevel_dBFS;
   LPF_FREQUENCY_t        LPFFrequency_MHz;
 } REG_51_PARAMS_t;
@@ -151,5 +151,5 @@ typedef struct
 typedef struct
 {
 } REG_59_PARAMS_t;
-}  // namespace DAPHNE
+// }  // namespace DAPHNE
 #endif
