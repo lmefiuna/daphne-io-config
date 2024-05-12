@@ -4,8 +4,6 @@
 
 #include "CommandBuilder.h"
 
-// using namespace DAPHNE;
-
 int main() {
   std::ostringstream outputCommands;
 
