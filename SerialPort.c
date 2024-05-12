@@ -8,12 +8,22 @@
 #include <termios.h>
 #include <unistd.h>
 
+#include "Common.h"
+
+char log_buffer[200];
+
 int open_port(const char* port) {
+  if (verbose) {
+    fprintf(stdout, "[DEBUG] - SerialPort - Opening serial port %s\n", port);
+  }
+
   int file_descriptor;
 
   file_descriptor = open(port, O_RDWR | O_NOCTTY | O_NDELAY);
   if (file_descriptor == -1) {
-    fprintf(stderr, "open_port(%s) : %s\n", port, strerror(errno));
+    char tmp[100];
+    sprintf(tmp, "open_port(%s)", port);
+    system_error(tmp);
     exit(1);
   }
 
@@ -23,6 +33,9 @@ int open_port(const char* port) {
 }
 
 void configure_port(int* file_descriptor) {
+  if (verbose) {
+    fprintf(stdout, "[DEBUG] - SerialPort - Configuring serial port.\n");
+  }
   struct termios options;
 
   tcgetattr(*file_descriptor, &options);
@@ -52,7 +65,11 @@ int send_command(int* fd, const char* command) {
   const int bytes_to_send = (int)strlen(command);
   int       sent_bytes;
 
-  printf("send_command:\t%s", command);
+  /* TODO: remove redundant \r\n in log entry */
+  sprintf(log_buffer, "Serial Port - send_command:\t%s", command);
+  *(log_buffer + strlen(log_buffer) - 2) = '\0';
+  log_entry(log_buffer);
+  //printf("send_command:\t%s", command);
 
   for (tries = 0; tries < MAXIMUM_RETRIES; ++tries) {
     sent_bytes = write(*fd, command, bytes_to_send);
@@ -62,7 +79,8 @@ int send_command(int* fd, const char* command) {
     return (0);
   }
 
-  fprintf(stderr, "Could not send command %s", command);
+  sprintf(log_buffer, "Could not send command %s", command);
+  error_m("SerialPort", log_buffer);
   return (-1);
 }
 
@@ -75,49 +93,48 @@ int read_response(int* fd, char buffer[], const int buffer_size) {
   while ((nbytes = read(*fd, buffer_pointer, buffer + buffer_size - buffer_pointer - 1)) > 0)
   {
     buffer_pointer += nbytes;
-
-    /* uC response ends in "\n\n\n\n>" */
-    // if (buffer_pointer - buffer > 5)
-    // {
-    //   if (buffer_pointer[-5] == '\n' && buffer_pointer[-4] == '\n' && buffer_pointer[-3] == '\n' &&
-    //       buffer_pointer[-2] == '\n' && buffer_pointer[-1] == '>')
-    //   {
-    //     buffer_pointer -= 5;
-    //     break;
-    //   }
-    // }
   }
 
-  // *buffer_pointer = '\0';
   int response_length = strlen(buffer);
+  int i;
+
+  for (i=0;i<response_length;++i) {
+    if (buffer[i] == '\r' || buffer[i] == '\n' || buffer[i] == '>') {
+      buffer[i] = ' ';
+    }
+  }
+
+  if (verbose) {
+    fprintf(stdout, "[DEBUG] - Serial Port - read_response - Response length:%d\n", response_length);
+    fprintf(stdout, "[DEBUG] - Serial Port - read_response - Response:\t%s\n", buffer);
+  }
   // printf("response length: %d\n", response_length);
   if ((strstr(buffer, "done") != NULL) ||
       (strstr(buffer, "success") != NULL) ||
       (strstr(buffer, "updated") != NULL))
     {
-  // if ((strcmp(&buffer[response_length - 4], "done") == 0) ||
-  //     (strcmp(&buffer[response_length - 7], "success") == 0) ||
-  //     (strcmp(&buffer[response_length - 7], "updated") == 0)) {
-    /* delete last 5 chars: \n\n\n\n> */
-    if (buffer[response_length-1] == '>') {
-      *(buffer_pointer-5) = '\0';
-      //memset(buffer+response_length-5, 0, 5);
-    }
-    /* delete first 5 chars: "\n\n>\n\n" */
-    char* ps;
-    for (ps = buffer; *ps != '\0'; ++ps) {
-      *ps = *(ps + 5);
-    }
 
+    // /* delete last 5 chars: \n\n\n\n> */
+    // if (buffer[response_length-1] == '>') {
+    //   *(buffer_pointer-5) = '\0';
+    // }
+    // /* delete first 5 chars: "\n\n>\n\n" */
+    // char* ps;
+    // for (ps = buffer; *ps != '\0'; ++ps) {
+    //   *ps = *(ps + 5);
+    // }
 
-    printf("read_response:\t%s\n", buffer);
+    // sprintf(log_buffer, "Serial Port - read_response: %s, last char %d %c", buffer, buffer[strlen(buffer)], 47);
+    // if (log_buffer[-1] == '\n')
+    log_entry("Serial_Port - Command executed successfully.");
     return (0);
   }
 
-  fprintf(
-      stderr,
+  sprintf(
+      log_buffer,
       "read_response:\tcommand was not executed succesfully or did not"
-      " get proper response. Response: %s\n",
+      " get proper response. Response: %s",
       buffer);
+  error_m("SerialPort", log_buffer);
   return (-1);
 }

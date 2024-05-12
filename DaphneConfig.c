@@ -2,7 +2,13 @@
 
 #include <string.h>
 
+#include "Common.h"
+
 void SetDefaultConfiguration(DaphneConfig_t *DaphneConfig) {
+  if (verbose) {
+    fprintf(stdout, "[DEBUG] - Setting default configuration to all AFEs and channels.\n");
+  }
+
   int i;
   for (i = 0; i < NUMBER_AFES; ++i) {
     DaphneConfig->enableConfigureAFE[i] = 0;
@@ -76,26 +82,42 @@ int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig) {
       if (strstr(str, "COMMON")) {
         current_afe = -1;
         current_channel = -1;
-        // printf("section common");
+        if (verbose) {
+          fprintf(
+              stdout, "[DEBUG] - ParseConfigFile - Line %d:\t Section ****** COMMON ******\n",
+              line_counter);
+        }
         continue;
       }
       if (strstr(str, "AFE")) {
         sscanf(str + 1, "AFE%d", &value_read);
         if (value_read < 0 || value_read >= NUMBER_AFES) {
-          printf("Line %d: Invalid AFE number\n", line_counter);
+          sprintf(str, "Line %d:\t Invalid AFE number %d", line_counter, value_read);
+          error("ParseConfigFile", str);
         } else {
+          if (verbose) {
+            fprintf(
+                stdout, "[DEBUG] - ParseConfigFile - Line %d:\t Section ****** AFE%d ******\n",
+                line_counter, value_read);
+          }
           current_afe = value_read;
-          // printf("section afe %d", current_afe);
         }
       } else if (strstr(str, "CHANNEL")) {
         sscanf(str + 1, "CHANNEL%d", &value_read);
         if (value_read < 0 || value_read >= NUMBER_CHANNELS) {
-          printf("Line %d: Invalid channel number\n", line_counter);
+          sprintf(str, "Line %d:\t Invalid channel number %d", line_counter, value_read);
+          error("ParseConfigFile", str);
         } else {
+          if (verbose) {
+            fprintf(
+                stdout, "[DEBUG] - ParseConfigFile - Line %d:\t Section ****** CHANNEL%d ******\n",
+                line_counter, value_read);
+          }
           current_channel = value_read;
         }
       } else {
-        printf("Line %d: Invalid section identifier\n", line_counter);
+        sprintf(str, "Line %d:\t Invalid section identifier", line_counter);
+        error("ParseConfigFile", str);
       }
       continue;
     }
@@ -107,9 +129,15 @@ int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig) {
         case LNA_GAIN_12_DB:
         case LNA_GAIN_18_DB:
         case LNA_GAIN_24_DB:
+          if (verbose) {
+            fprintf(
+                stdout, "[DEBUG] - ParseConfigFile - Line %d:\t LNA_GAIN_DB %d\n", line_counter,
+                value_read);
+          }
           break;
         default:
-          printf("Line %d: Invalid LNA_GAIN_DB value\n", line_counter);
+          sprintf(str, "Line %d:\t Invalid LNA_GAIN_DB value %d", line_counter, value_read);
+          error("ParseConfigFile", str);
           continue;
       }
 
@@ -129,25 +157,26 @@ int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig) {
       switch (value_read) {
         case 0:
         case 1:
+          if (verbose) {
+            fprintf(
+                stdout, "[DEBUG] - ParseConfigFile - Line %d:\t CONFIGURE_AFE %d\n", line_counter,
+                value_read);
+          }
           break;
 
         default:
-          printf("Line %d: Invalid CONFIGURE_AFE value\n", line_counter);
+          sprintf(str, "Line %d:\t Invalid CONFIGURE_AFE value %d", line_counter, value_read);
+          error("ParseConfigFile", str);
           continue;
       }
-
-      //printf("Line %d: CONFIGURE_AFE: %d\n", line_counter, value_read);
 
       if (current_afe == -1) {
         for (i = 0; i < NUMBER_AFES; ++i) {
           DaphneConfig->enableConfigureAFE[i] = value_read;
         }
       } else {
-        // printf("Line %d: Enable configure CONFIGURE_AFE: %d\n", line_counter, value_read);
-        // printf("Previous value: %d\n", DaphneConfig->enableConfigureAFE[current_afe]);
         DaphneConfig->enableConfigureAFE[current_afe] = value_read;
       }
-      // printf("AFE %d enable configure new value: %d\n", current_afe, DaphneConfig->enableConfigureAFE[current_afe]);
       continue;
     }
 
@@ -157,10 +186,16 @@ int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig) {
       switch (value_read) {
         case 0:
         case 1:
+          if (verbose) {
+            fprintf(
+                stdout, "[DEBUG] - ParseConfigFile - Line %d:\t CONFIGURE_CHANNEL %d\n",
+                line_counter, value_read);
+          }
           break;
 
         default:
-          printf("Line %d: Invalid CONFIGURE_CHANNEL value\n", line_counter);
+          sprintf(str, "Line %d:\t Invalid CONFIGURE_CHANNEL value %d", line_counter, value_read);
+          error("ParseConfigFile", str);
           continue;
       }
 
@@ -180,10 +215,17 @@ int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig) {
       switch (value_read) {
         case 0:
         case 1:
+          if (verbose) {
+            fprintf(
+                stdout, "[DEBUG] - ParseConfigFile - Line %d:\t LNA_INTEGRATOR_ENABLE %d\n",
+                line_counter, value_read);
+          }
           break;
 
         default:
-          printf("Line %d: Invalid LNA_INTEGRATOR_ENABLE value\n", line_counter);
+          sprintf(
+              str, "Line %d:\t Invalid LNA_INTEGRATOR_ENABLE value %d", line_counter, value_read);
+          error("ParseConfigFile", str);
           continue;
       }
 
@@ -205,10 +247,16 @@ int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig) {
         case LNA_CLAMP_1_5_VPP:
         case LNA_CLAMP_1_15_VPP:
         case LNA_CLAMP_0_6_VPP:
+          if (verbose) {
+            fprintf(
+                stdout, "[DEBUG] - ParseConfigFile - Line %d:\t LNA_CLAMP_LEVEL_VPP %d\n",
+                line_counter, value_read);
+          }
           break;
 
         default:
-          printf("Line %d: Invalid LNA_CLAMP_LEVEL_VPP value\n", line_counter);
+          sprintf(str, "Line %d:\t Invalid LNA_CLAMP_LEVEL_VPP value %d", line_counter, value_read);
+          error("ParseConfigFile", str);
           continue;
       }
 
@@ -228,10 +276,16 @@ int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig) {
       switch (value_read) {
         case 0:
         case 1:
+          if (verbose) {
+            fprintf(
+                stdout, "[DEBUG] - ParseConfigFile - Line %d:\t ACTIVE_TERMINATION_ENABLE %d\n",
+                line_counter, value_read);
+          }
           break;
 
         default:
-          printf("Line %d: Invalid ACTIVE_TERMINATION_ENABLE value\n", line_counter);
+          sprintf(str, "Line %d:\t Invalid ACTIVE_TERMINATION_ENABLE value %d", line_counter, value_read);
+          error("ParseConfigFile", str);
           continue;
       }
 
@@ -253,10 +307,20 @@ int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig) {
         case IMPEDANCE_100_OHMS:
         case IMPEDANCE_200_OHMS:
         case IMPEDANCE_400_OHMS:
+          if (verbose) {
+            fprintf(
+                stdout,
+                "[DEBUG] - ParseConfigFile - Line %d:\t PRESET_ACTIVE_TERMINATION_IMPEDANCE_OHM "
+                "%d\n",
+                line_counter, value_read);
+          }
           break;
 
         default:
-          printf("Line %d: Invalid PRESET_ACTIVE_TERMINATION_IMPEDANCE_OHM value\n", line_counter);
+          sprintf(
+              str, "Line %d:\t Invalid PRESET_ACTIVE_TERMINATION_IMPEDANCE_OHM value %d",
+              line_counter, value_read);
+          error("ParseConfigFile", str);
           continue;
       }
 
@@ -276,10 +340,16 @@ int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig) {
       switch (value_read) {
         case PGA_GAIN_24_DB:
         case PGA_GAIN_30_DB:
+          if (verbose) {
+            fprintf(
+                stdout, "[DEBUG] - ParseConfigFile - Line %d:\t PGA_GAIN_DB %d\n", line_counter,
+                value_read);
+          }
           break;
 
         default:
-          printf("Line %d: Invalid PGA_GAIN_DB value\n", line_counter);
+          sprintf(str, "Line %d:\t Invalid PGA_GAIN_DB value %d", line_counter, value_read);
+          error("ParseConfigFile", str);
           continue;
       }
 
@@ -299,10 +369,16 @@ int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig) {
       switch (value_read) {
         case 0:
         case 1:
+          if (verbose) {
+            fprintf(
+                stdout, "[DEBUG] - ParseConfigFile - Line %d:\t PGA_INTEGRATOR_ENABLE %d\n", line_counter,
+                value_read);
+          }
           break;
 
         default:
-          printf("Line %d: Invalid PGA_INTEGRATOR_ENABLE value\n", line_counter);
+          sprintf(str, "Line %d:\t Invalid PGA_INTEGRATOR_ENABLE value %d", line_counter, value_read);
+          error("ParseConfigFile", str);
           continue;
       }
 
@@ -323,10 +399,17 @@ int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig) {
         case PGA_CLAMP_0_DBFS:
         case PGA_CLAMP_NEG_2_DBFS:
         case PGA_CLAMP_DISABLED:
+          if (verbose) {
+            fprintf(
+                stdout, "[DEBUG] - ParseConfigFile - Line %d:\t PGA_CLAMP_LEVEL_DBFS %d\n",
+                line_counter, value_read);
+          }
           break;
 
         default:
-          printf("Line %d: Invalid PGA_CLAMP_LEVEL_DBFS value\n", line_counter);
+          sprintf(
+              str, "Line %d:\t Invalid PGA_CLAMP_LEVEL_DBFS value %d", line_counter, value_read);
+          error("ParseConfigFile", str);
           continue;
       }
 
@@ -348,10 +431,17 @@ int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig) {
         case LPF_FREQ_15_MHZ:
         case LPF_FREQ_20_MHZ:
         case LPF_FREQ_30_MHZ:
+          if (verbose) {
+            fprintf(
+                stdout, "[DEBUG] - ParseConfigFile - Line %d:\t LPF_FREQUENCY_MHZ %d\n",
+                line_counter, value_read);
+          }
           break;
 
         default:
-          printf("Line %d: Invalid LPF_FREQUENCY_MHZ value\n", line_counter);
+          sprintf(
+              str, "Line %d:\t Invalid PGA_CLAMP_LEVEL_DBFS value %d", line_counter, value_read);
+          error("ParseConfigFile", str);
           continue;
       }
 
@@ -370,8 +460,15 @@ int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig) {
       read = fscanf(f_ini, "%lf", &gain_V);
 
       if (gain_V < 0 || gain_V > 1.5) {
-        printf("Line %d: Invalid GAIN_V value\n", line_counter);
+        sprintf(str, "Line %d:\t Invalid GAIN_V value %lf", line_counter, gain_V);
+        error("ParseConfigFile", str);
         continue;
+      }
+
+      if (verbose) {
+        fprintf(
+            stdout, "[DEBUG] - ParseConfigFile - Line %d:\t GAIN_V %.2lf\n",
+            line_counter, gain_V);
       }
 
       if (current_afe == -1) {
@@ -390,10 +487,16 @@ int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig) {
       switch (value_read) {
         case ADC_FORMAT_OFFSET_BINARY:
         case ADC_FORMAT_2COMP:
+          if (verbose) {
+            fprintf(
+                stdout, "[DEBUG] - ParseConfigFile - Line %d:\t ADC_OUTPUT_FORMAT %d\n",
+                line_counter, value_read);
+          }
           break;
 
         default:
-          printf("Line %d: Invalid ADC_OUTPUT_FORMAT value\n", line_counter);
+          sprintf(str, "Line %d:\t Invalid ADC_OUTPUT_FORMAT value %d", line_counter, value_read);
+          error("ParseConfigFile", str);
           continue;
       }
 
@@ -413,10 +516,16 @@ int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig) {
       switch (value_read) {
         case ADC_ENDIAN_LSB_FIRST:
         case ADC_ENDIAN_MSB_FIRST:
+          if (verbose) {
+            fprintf(
+                stdout, "[DEBUG] - ParseConfigFile - Line %d:\t ADC_OUTPUT_FIRST_BIT %d\n",
+                line_counter, value_read);
+          }
           break;
 
         default:
-          printf("Line %d: Invalid ADC_OUTPUT_FIRST_BIT value\n", line_counter);
+          sprintf(str, "Line %d:\t Invalid ADC_OUTPUT_FIRST_BIT value %d", line_counter, value_read);
+          error("ParseConfigFile", str);
           continue;
       }
 
@@ -436,10 +545,18 @@ int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig) {
       switch (value_read) {
         case 0:
         case 1:
+          if (verbose) {
+            fprintf(
+                stdout, "[DEBUG] - ParseConfigFile - Line %d:\t CHANNEL_OFFSET_GAIN_ENABLE %d\n",
+                line_counter, value_read);
+          }
           break;
 
         default:
-          printf("Line %d: Invalid CHANNEL_OFFSET_GAIN_ENABLE value\n", line_counter);
+          sprintf(
+              str, "Line %d:\t Invalid CHANNEL_OFFSET_GAIN_ENABLE value %d", line_counter,
+              value_read);
+          error("ParseConfigFile", str);
           continue;
       }
 
@@ -457,8 +574,16 @@ int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig) {
       read = fscanf(f_ini, "%d", &value_read);
 
       if (value_read < 0 || value_read > 4095) {
-        printf("Line %d: Invalid CHANNEL_OFFSET_VOLTAGE_mV value\n", line_counter);
+        sprintf(
+            str, "Line %d:\t Invalid CHANNEL_OFFSET_VOLTAGE_mV value %d", line_counter, value_read);
+        error("ParseConfigFile", str);
         continue;
+      }
+
+      if (verbose) {
+        fprintf(
+            stdout, "[DEBUG] - ParseConfigFile - Line %d:\t CHANNEL_OFFSET_VOLTAGE_mV %d\n",
+            line_counter, value_read);
       }
 
       if (current_channel == -1) {
@@ -471,7 +596,11 @@ int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig) {
       continue;
     }
 
-    printf("Line %d: invalid setting: %s\n", line_counter, str);
+    char tmp[100];
+    memcpy(tmp, str, 100);
+    sprintf(str, "Line %d: Invalid parameter %s", line_counter, tmp);
+    error("ParseConfigFile", str);
+    // printf("Line %d:\t invalid setting: %s\n", line_counter, str);
     res = fgets(str, 1000, f_ini);
   }
   return ret;

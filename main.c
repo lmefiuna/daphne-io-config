@@ -2,102 +2,148 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "Common.h"
 #include "CommandBuilder.h"
 #include "DaphneConfig.h"
 #include "SerialPort.h"
 
-const char* program_name;
-
 #define BUFFER_SIZE 200
+#define SERIAL_PORT_LENGTH 15
+#define CONFIG_FILE_LENGTH 170
 
-void print_usage(FILE* stream, int exit_code) {
-  fprintf(stream, "Usage : %s -p SERIAL_PORT -c CONFIG_FILE\n", program_name);
-  fprintf(
-      stream,
-      "Options:\n"
-      " -h --help                    Display this usage information.\n"
-      " -p --port filename           Serial port to use.\n"
-      " -c --config-file filepath    Path to config file for DAPHNE IO.\n");
-  exit(exit_code);
+/* Description of long options for getopt_long. */
+static const struct option long_options[] = {
+    {"help",        0, NULL, 'h'},
+    {"port",        1, NULL, 'p'},
+    {"config-file", 1, NULL, 'c'},
+    {"verbose",     0, NULL, 'v'},
+    {NULL,          0, NULL,  0}};
+
+/* Description of short options for getopt_long. */
+static const char * const short_options = "hp:c:v";
+
+/* Usage summary text. */
+static const char * const usage_template =
+	"Usage : %s -p SERIAL_PORT -c CONFIG_FILE [-v]\n"
+	"   -h, --help                      Print this information.\n"
+	"   -p, --port /dev/ttyUSB*         Serial port.\n"
+  "   -c --config-file /path/to/file  Path to config file for DAPHNE IO.\n"
+	"   -v, --verbose                   Print debug messages.\n";
+
+/* Print usage information and exit. If IS_ERROR is nonzero, write to
+stderr and use an error exit code. Otherwise, write to stdout and
+use a non-error termination code. Does not return. */
+static void print_usage(int is_error)
+{
+	fprintf(is_error ? stderr : stdout, usage_template, program_name);
 }
 
 int main(int argc, char* argv[]) {
-  int                 next_option;
-  const char* const   short_options = "hp:c:";
-  const struct option long_options[] = {
-      {"help", 0, NULL, 'h'},
-      {"port", 1, NULL, 'p'},
-      {"config-file", 1, NULL, 'c'},
-      {NULL, 0, NULL, 0}};
+  
+  /* Set defaults for options. */
+  int next_option;
+  char Config_File[CONFIG_FILE_LENGTH];
+  char Serial_Port[SERIAL_PORT_LENGTH];
+  
+  memset(Config_File, 0, CONFIG_FILE_LENGTH);
+  memset(Serial_Port, 0, SERIAL_PORT_LENGTH);
 
-  const char* config_file_path = NULL;
-  const char* serial_port_path = NULL;
-
+  /* Set values to default */
   program_name = argv[0];
 
+  /* Parse options. */
   do {
     next_option = getopt_long(argc, argv, short_options, long_options, NULL);
     switch (next_option) {
+      /* Print help info */
       case 'h':
-        print_usage(stdout, 0);
+        print_usage(0);
+        return 0;
         break;
 
+      /* Load serial port */
       case 'p':
-        serial_port_path = optarg;
+        if (strlen(optarg) > SERIAL_PORT_LENGTH) {
+          error(optarg, "Serial port name too long.");
+        }
+        strncpy(Serial_Port, optarg, SERIAL_PORT_LENGTH);
         break;
 
+      /* Config file path */
       case 'c':
-        config_file_path = optarg;
+        if (strlen(optarg) > CONFIG_FILE_LENGTH) {
+          error(optarg, "Config file name too long.");
+        }
+        strncpy(Config_File, optarg, CONFIG_FILE_LENGTH);
         break;
 
+      /* Enable verbose mode */
+      case 'v':
+        verbose = 1;
+        break;
+      
+      /* The user specified an invalid option. */
       case '?':
-        print_usage(stderr, 1);
+        print_usage(1);
 
+      /* Done with options */
       case -1:
         break;
 
       default:
         abort();
+        break;
     }
   } while (next_option != -1);
 
-  if (serial_port_path == NULL) {
-    fprintf(stderr, "Error: Serial port is mandatory (E.g: -p /dev/ttyUSB0)\n");
-    print_usage(stderr, 1);
+  if (strlen(Serial_Port) == 0) {
+    error("Serial_Port", "Serial port is mandatory (E.g: -p /dev/ttyUSB0)");
+    print_usage(1);
   }
 
-  if (config_file_path == NULL) {
-    fprintf(stdout, "Error: Configuration file is mandatory (E.g: -c /home/user/daphne.config)\n");
-    print_usage(stderr, 1);
+  if (strlen(Config_File) == 0) {
+    error("Config_File", "Configuration file is mandatory (E.g: -c /home/user/daphne.config)");
+    print_usage(1);
   }
 
+  char buffer[BUFFER_SIZE];
+
+  /* Start program */
+  log_entry("DAPHNE Board V1 IO config started.");
+  if (verbose)
+	{
+    fprintf(stdout, "[DEBUG] - Config File:\t\t%s\n", Config_File);
+    fprintf(stdout, "[DEBUG] - Serial Port:\t\t%s\n", Serial_Port);
+    fprintf(stdout, "[DEBUG] - Debug messages enabled\n");
+	}
   DaphneConfig_t DaphneConfig;
   FILE*          f_ini;
-  char           buffer[BUFFER_SIZE];
 
-  f_ini = fopen(config_file_path, "r");
+  f_ini = fopen(Config_File, "r");
   if (f_ini == NULL) {
-    fprintf(stderr, "Could not open config file %s.\n", config_file_path);
-    exit(2);
+    sprintf(buffer, "Could not open config file %s.", Config_File);
+    error("Config_File", buffer);
+    exit(1);
   }
 
   ParseConfigFile(f_ini, &DaphneConfig);
-
   int fd;
   int i;
 
-  fd = open_port(serial_port_path);
+  fd = open_port(Serial_Port);
   configure_port(&fd);
 
   for (i=0; i<NUMBER_AFES; ++i){
 
-    // printf("afe %d, enable configure: %d\n", i, DaphneConfig.enableConfigureAFE[i]);
     if (DaphneConfig.enableConfigureAFE[i] == 0) {
-      // printf("Skipping afe %d\n", i);
+      if (verbose) {
+        fprintf(stdout, "[DEBUG] - Skipping AFE %d", i);
+      }
       continue;
     }
 
-    printf("Configuring AFE %d\n", i);
+    sprintf(buffer, "Configuring AFE %d", i);
+    log_entry(buffer);
 
     configureAFEReg52(buffer, (AFE_NUMBER_t)i, DaphneConfig.afe_reg_52_params[i]);
     if (send_command(&fd, buffer) == -1) {
@@ -150,10 +196,14 @@ int main(int argc, char* argv[]) {
 
     for (i=0; i<NUMBER_CHANNELS; ++i){
     if (DaphneConfig.enableConfigureChannel[i] == 0) {
+      if (verbose) {
+        fprintf(stdout, "[DEBUG] - Skipping channel %d", i);
+      }
       continue;
     }
 
-    printf("Configuring Channel %d\n", i);
+    sprintf(buffer, "Configuring channel %d", i);
+    log_entry(buffer);
 
     enableChannelOffsetGain(buffer, CHANNEL_0, DaphneConfig.ch_offset_gain_enable[i]);
     if (send_command(&fd, buffer) == -1) {
