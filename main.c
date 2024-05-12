@@ -2,12 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "CommandBuilder.h"
 #include "DaphneConfig.h"
+#include "SerialPort.h"
 
 const char* program_name;
 
+#define BUFFER_SIZE 200
+
 void print_usage(FILE* stream, int exit_code) {
-  fprintf(stream, "Usage : %s -s SERIAL_PORT [-c CONFIG_FILE]\n", program_name);
+  fprintf(stream, "Usage : %s -p SERIAL_PORT -c CONFIG_FILE\n", program_name);
   fprintf(
       stream,
       "Options:\n"
@@ -58,7 +62,7 @@ int main(int argc, char* argv[]) {
   } while (next_option != -1);
 
   if (serial_port_path == NULL) {
-    fprintf(stderr, "Error: Serial port is mandatory (E.g: -s /dev/ttyUSB0)\n");
+    fprintf(stderr, "Error: Serial port is mandatory (E.g: -p /dev/ttyUSB0)\n");
     print_usage(stderr, 1);
   }
 
@@ -69,6 +73,7 @@ int main(int argc, char* argv[]) {
 
   DaphneConfig_t DaphneConfig;
   FILE*          f_ini;
+  char           buffer[BUFFER_SIZE];
 
   f_ini = fopen(config_file_path, "r");
   if (f_ini == NULL) {
@@ -77,6 +82,91 @@ int main(int argc, char* argv[]) {
   }
 
   ParseConfigFile(f_ini, &DaphneConfig);
+
+  int fd;
+  int i;
+
+  fd = open_port(serial_port_path);
+  configure_port(&fd);
+
+  for (i=0; i<NUMBER_AFES; ++i){
+
+    // printf("afe %d, enable configure: %d\n", i, DaphneConfig.enableConfigureAFE[i]);
+    if (DaphneConfig.enableConfigureAFE[i] == 0) {
+      // printf("Skipping afe %d\n", i);
+      continue;
+    }
+
+    printf("Configuring AFE %d\n", i);
+
+    configureAFEReg52(buffer, (AFE_NUMBER_t)i, DaphneConfig.afe_reg_52_params[i]);
+    if (send_command(&fd, buffer) == -1) {
+      fprintf(stderr, "Could not send command %s.\n", buffer);
+    }
+    read_response(&fd, buffer, BUFFER_SIZE);
+
+    configureAFEReg51(buffer, (AFE_NUMBER_t)i, DaphneConfig.afe_reg_51_params[i]);
+    if (send_command(&fd, buffer) == -1) {
+      fprintf(stderr, "Could not send command %s.\n", buffer);
+    }
+    read_response(&fd, buffer, BUFFER_SIZE);
+
+    configureAFEReg4(buffer, (AFE_NUMBER_t)i, DaphneConfig.afe_reg_4_params[i]);
+    if (send_command(&fd, buffer) == -1) {
+      fprintf(stderr, "Could not send command %s.\n", buffer);
+    }
+    read_response(&fd, buffer, BUFFER_SIZE);
+
+    configureAFEReg1(buffer, (AFE_NUMBER_t)i, DaphneConfig.afe_reg_1_params[i]);
+    if (send_command(&fd, buffer) == -1) {
+      fprintf(stderr, "Could not send command %s.\n", buffer);
+    }
+    read_response(&fd, buffer, BUFFER_SIZE);
+
+    configureAFEReg21(buffer, (AFE_NUMBER_t)i, DaphneConfig.afe_reg_21_params[i]);
+    if (send_command(&fd, buffer) == -1) {
+      fprintf(stderr, "Could not send command %s.\n", buffer);
+    }
+    read_response(&fd, buffer, BUFFER_SIZE);
+
+    configureAFEReg33(buffer, (AFE_NUMBER_t)i, DaphneConfig.afe_reg_33_params[i]);
+    if (send_command(&fd, buffer) == -1) {
+      fprintf(stderr, "Could not send command %s.\n", buffer);
+    }
+    read_response(&fd, buffer, BUFFER_SIZE);
+
+    configureAFEReg59(buffer, (AFE_NUMBER_t)i, DaphneConfig.afe_reg_59_params[i]);
+    if (send_command(&fd, buffer) == -1) {
+      fprintf(stderr, "Could not send command %s.\n", buffer);
+    }
+    read_response(&fd, buffer, BUFFER_SIZE);
+
+    applyAFEGain_V(buffer, AFE_0, DaphneConfig.afe_gain_V[0]);
+    if (send_command(&fd, buffer) == -1) {
+      fprintf(stderr, "Could not send command %s.\n", buffer);
+    }
+    read_response(&fd, buffer, BUFFER_SIZE);
+  }
+
+    for (i=0; i<NUMBER_CHANNELS; ++i){
+    if (DaphneConfig.enableConfigureChannel[i] == 0) {
+      continue;
+    }
+
+    printf("Configuring Channel %d\n", i);
+
+    enableChannelOffsetGain(buffer, CHANNEL_0, DaphneConfig.ch_offset_gain_enable[i]);
+    if (send_command(&fd, buffer) == -1) {
+      fprintf(stderr, "Could not send command %s.\n", buffer);
+    }
+    read_response(&fd, buffer, BUFFER_SIZE);
+
+    applyChannelOffsetVoltage_mV(buffer, CHANNEL_0, DaphneConfig.ch_offset_voltage_mV[i]);
+    if (send_command(&fd, buffer) == -1) {
+      fprintf(stderr, "Could not send command %s.\n", buffer);
+    }
+    read_response(&fd, buffer, BUFFER_SIZE);    
+    }
 
   return 0;
 }

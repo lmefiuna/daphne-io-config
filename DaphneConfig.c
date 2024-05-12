@@ -5,6 +5,8 @@
 void SetDefaultConfiguration(DaphneConfig_t *DaphneConfig) {
   int i;
   for (i = 0; i < NUMBER_AFES; ++i) {
+    DaphneConfig->enableConfigureAFE[i] = 0;
+
     DaphneConfig->afe_reg_52_params[i] = (REG_52_PARAMS_t){
         .LNAGain_dB = LNA_GAIN_12_DB,
         .LNAIntegratorEnable = 1,
@@ -30,6 +32,8 @@ void SetDefaultConfiguration(DaphneConfig_t *DaphneConfig) {
   }
 
   for (i = 0; i < NUMBER_CHANNELS; ++i) {
+    DaphneConfig->enableConfigureChannel[i] = 0;
+
     DaphneConfig->ch_offset_gain_enable[i] = 1;
     DaphneConfig->ch_offset_voltage_mV[i] = 2300;
   }
@@ -67,7 +71,7 @@ int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig) {
       continue;
     }
 
-    // Section (COMMON or individual channel)
+    // Section (COMMON or individual afe/channel)
     if (str[0] == '[') {
       if (strstr(str, "COMMON")) {
         current_afe = -1;
@@ -115,6 +119,57 @@ int ParseConfigFile(FILE *f_ini, DaphneConfig_t *DaphneConfig) {
         }
       } else {
         DaphneConfig->afe_reg_52_params[current_afe].LNAGain_dB = value_read;
+      }
+      continue;
+    }
+
+    if (strstr(str, "CONFIGURE_AFE") != NULL) {
+      read = fscanf(f_ini, "%d", &value_read);
+
+      switch (value_read) {
+        case 0:
+        case 1:
+          break;
+
+        default:
+          printf("Line %d: Invalid CONFIGURE_AFE value\n", line_counter);
+          continue;
+      }
+
+      //printf("Line %d: CONFIGURE_AFE: %d\n", line_counter, value_read);
+
+      if (current_afe == -1) {
+        for (i = 0; i < NUMBER_AFES; ++i) {
+          DaphneConfig->enableConfigureAFE[i] = value_read;
+        }
+      } else {
+        // printf("Line %d: Enable configure CONFIGURE_AFE: %d\n", line_counter, value_read);
+        // printf("Previous value: %d\n", DaphneConfig->enableConfigureAFE[current_afe]);
+        DaphneConfig->enableConfigureAFE[current_afe] = value_read;
+      }
+      // printf("AFE %d enable configure new value: %d\n", current_afe, DaphneConfig->enableConfigureAFE[current_afe]);
+      continue;
+    }
+
+    if (strstr(str, "CONFIGURE_CHANNEL") != NULL) {
+      read = fscanf(f_ini, "%d", &value_read);
+
+      switch (value_read) {
+        case 0:
+        case 1:
+          break;
+
+        default:
+          printf("Line %d: Invalid CONFIGURE_CHANNEL value\n", line_counter);
+          continue;
+      }
+
+      if (current_channel == -1) {
+        for (i = 0; i < NUMBER_CHANNELS; ++i) {
+          DaphneConfig->enableConfigureChannel[i] = value_read;
+        }
+      } else {
+        DaphneConfig->enableConfigureChannel[current_channel] = value_read;
       }
       continue;
     }

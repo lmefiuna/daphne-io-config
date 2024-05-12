@@ -8,13 +8,11 @@
 #include <termios.h>
 #include <unistd.h>
 
-int open_port(const char* port)
-{
+int open_port(const char* port) {
   int file_descriptor;
 
   file_descriptor = open(port, O_RDWR | O_NOCTTY | O_NDELAY);
-  if (file_descriptor == -1)
-  {
+  if (file_descriptor == -1) {
     fprintf(stderr, "open_port(%s) : %s\n", port, strerror(errno));
     exit(1);
   }
@@ -24,8 +22,7 @@ int open_port(const char* port)
   return (file_descriptor);
 }
 
-void configure_port(int* file_descriptor)
-{
+void configure_port(int* file_descriptor) {
   struct termios options;
 
   tcgetattr(*file_descriptor, &options);
@@ -49,20 +46,17 @@ void configure_port(int* file_descriptor)
   tcsetattr(*file_descriptor, TCSANOW, &options);
 }
 
-int send_command(int* fd, const char* command)
-{
+int send_command(int* fd, const char* command) {
   const int MAXIMUM_RETRIES = 3;
   int       tries;
   const int bytes_to_send = (int)strlen(command);
   int       sent_bytes;
 
-  printf("send_command: %s", command);
+  printf("send_command:\t%s", command);
 
-  for (tries = 0; tries < MAXIMUM_RETRIES; ++tries)
-  {
+  for (tries = 0; tries < MAXIMUM_RETRIES; ++tries) {
     sent_bytes = write(*fd, command, bytes_to_send);
-    if (sent_bytes < bytes_to_send)
-    {
+    if (sent_bytes < bytes_to_send) {
       continue;
     }
     return (0);
@@ -72,47 +66,57 @@ int send_command(int* fd, const char* command)
   return (-1);
 }
 
-int read_response(int* fd, char buffer[], const int buffer_size)
-{
+int read_response(int* fd, char buffer[], const int buffer_size) {
   char* buffer_pointer; /* Current char in buffer */
   int   nbytes;         /* Number of bytes read */
 
+  memset(buffer, 0, 200);
   buffer_pointer = buffer;
   while ((nbytes = read(*fd, buffer_pointer, buffer + buffer_size - buffer_pointer - 1)) > 0)
   {
     buffer_pointer += nbytes;
 
     /* uC response ends in "\n\n\n\n>" */
-    if (buffer_pointer - buffer > 5)
-    {
-      if (buffer_pointer[-5] == '\n' && buffer_pointer[-4] == '\n' && buffer_pointer[-3] == '\n' &&
-          buffer_pointer[-2] == '\n' && buffer_pointer[-1] == '>')
-      {
-        buffer_pointer -= 5;
-        break;
-      }
-    }
+    // if (buffer_pointer - buffer > 5)
+    // {
+    //   if (buffer_pointer[-5] == '\n' && buffer_pointer[-4] == '\n' && buffer_pointer[-3] == '\n' &&
+    //       buffer_pointer[-2] == '\n' && buffer_pointer[-1] == '>')
+    //   {
+    //     buffer_pointer -= 5;
+    //     break;
+    //   }
+    // }
   }
 
-  *buffer_pointer = '\0';
+  // *buffer_pointer = '\0';
   int response_length = strlen(buffer);
-  if ((strcmp(&buffer[response_length - 4], "done") == 0) ||
-      (strcmp(&buffer[response_length - 7], "success") == 0))
-  {
+  // printf("response length: %d\n", response_length);
+  if ((strstr(buffer, "done") != NULL) ||
+      (strstr(buffer, "success") != NULL) ||
+      (strstr(buffer, "updated") != NULL))
+    {
+  // if ((strcmp(&buffer[response_length - 4], "done") == 0) ||
+  //     (strcmp(&buffer[response_length - 7], "success") == 0) ||
+  //     (strcmp(&buffer[response_length - 7], "updated") == 0)) {
+    /* delete last 5 chars: \n\n\n\n> */
+    if (buffer[response_length-1] == '>') {
+      *(buffer_pointer-5) = '\0';
+      //memset(buffer+response_length-5, 0, 5);
+    }
     /* delete first 5 chars: "\n\n>\n\n" */
     char* ps;
-    for (ps = buffer; *ps != '\0'; ++ps)
-    {
+    for (ps = buffer; *ps != '\0'; ++ps) {
       *ps = *(ps + 5);
     }
 
-    printf("read_response: %s\n", buffer);
+
+    printf("read_response:\t%s\n", buffer);
     return (0);
   }
 
   fprintf(
       stderr,
-      "read_response: command was not executed succesfully or did not"
+      "read_response:\tcommand was not executed succesfully or did not"
       " get proper response. Response: %s\n",
       buffer);
   return (-1);

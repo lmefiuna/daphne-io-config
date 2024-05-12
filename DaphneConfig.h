@@ -10,6 +10,9 @@
 
 typedef struct
 {
+  int enableConfigureAFE[NUMBER_AFES];
+  int enableConfigureChannel[NUMBER_CHANNELS];
+
   REG_52_PARAMS_t afe_reg_52_params[NUMBER_AFES];
   REG_51_PARAMS_t afe_reg_51_params[NUMBER_AFES];
   REG_4_PARAMS_t  afe_reg_4_params[NUMBER_AFES];
