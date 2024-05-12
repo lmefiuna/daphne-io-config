@@ -4,13 +4,9 @@
 
 #include "types.h"
 
-// namespace DAPHNE
-// {
-// namespace CommandBuilder
-// {
-// namespace Helpers
-// {
-// extern "C" {
+#ifdef __cplusplus
+extern "C" {
+#endif
 int calculateAFEVGainReferenceValue(const double vgain_volts);
 
 void applyReg52Mask_LNAGain(uint16_t *regValue, const LNA_GAIN_DB_t gain_db);
@@ -31,9 +27,8 @@ void applyReg4Mask_ADCOutputFirstBit(
     uint16_t *regValue, const ADC_OUTPUT_FIRST_BIT_t ADCOutputFirstBit);
 
 uint16_t eraseAndApplyMask(uint16_t *reg, uint16_t mask, uint16_t eraser);
-// }
-// }  // namespace Helpers
-// }  // namespace CommandBuilder
-// }  // namespace DAPHNE
+#ifdef __cplusplus
+}
+#endif
 
 #endif

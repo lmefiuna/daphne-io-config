@@ -2,12 +2,6 @@
 
 #include "masks.h"
 
-// namespace DAPHNE
-// {
-// namespace CommandBuilder
-// {
-// namespace Helpers
-// {
 int calculateAFEVGainReferenceValue(const double vgain_volts) {
   double vGain_value = ((2.49 + 1.5) / 1.5) * vgain_volts;
   return (int)(vGain_value * 1000.0);
@@ -218,7 +212,3 @@ uint16_t eraseAndApplyMask(uint16_t *reg, uint16_t mask, uint16_t eraser) {
   value_reg = value_reg | mask;
   return value_reg;
 }
-
-// }  // namespace Helpers
-// }  // namespace CommandBuilder
-// }  // namespace DAPHNE

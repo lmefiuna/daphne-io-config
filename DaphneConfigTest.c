@@ -2,9 +2,7 @@
 
 #include "DaphneConfig.h"
 
-const char CONFIG_FILE_PATH[] =
-    "/home/caleb/caleb/fiuna/pasantia-tfg/mango-digitizer-daphne-v1/daphne-io-config/"
-    "example.config";
+const char CONFIG_FILE_PATH[] ="./example.config";
 
 int main() {
   DaphneConfig_t DaphneConfig;
