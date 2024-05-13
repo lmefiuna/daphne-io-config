@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
 
     if (DaphneConfig.enableConfigureAFE[i] == 0) {
       if (verbose) {
-        fprintf(stdout, "[DEBUG] - Skipping AFE %d", i);
+        fprintf(stdout, "[DEBUG] - Skipping AFE %d\n", i);
       }
       continue;
     }
@@ -187,7 +187,7 @@ int main(int argc, char* argv[]) {
     }
     read_response(&fd, buffer, BUFFER_SIZE);
 
-    applyAFEGain_V(buffer, AFE_0, DaphneConfig.afe_gain_V[0]);
+    applyAFEGain_V(buffer, (AFE_NUMBER_t)i, DaphneConfig.afe_gain_V[i]);
     if (send_command(&fd, buffer) == -1) {
       fprintf(stderr, "Could not send command %s.\n", buffer);
     }
@@ -197,7 +197,7 @@ int main(int argc, char* argv[]) {
     for (i=0; i<NUMBER_CHANNELS; ++i){
     if (DaphneConfig.enableConfigureChannel[i] == 0) {
       if (verbose) {
-        fprintf(stdout, "[DEBUG] - Skipping channel %d", i);
+        fprintf(stdout, "[DEBUG] - Skipping channel %d\n", i);
       }
       continue;
     }
@@ -205,13 +205,13 @@ int main(int argc, char* argv[]) {
     sprintf(buffer, "Configuring channel %d", i);
     log_entry(buffer);
 
-    enableChannelOffsetGain(buffer, CHANNEL_0, DaphneConfig.ch_offset_gain_enable[i]);
+    enableChannelOffsetGain(buffer, (CHANNEL_NUMBER_t)i, DaphneConfig.ch_offset_gain_enable[i]);
     if (send_command(&fd, buffer) == -1) {
       fprintf(stderr, "Could not send command %s.\n", buffer);
     }
     read_response(&fd, buffer, BUFFER_SIZE);
 
-    applyChannelOffsetVoltage_mV(buffer, CHANNEL_0, DaphneConfig.ch_offset_voltage_mV[i]);
+    applyChannelOffsetVoltage_mV(buffer, (CHANNEL_NUMBER_t)i, DaphneConfig.ch_offset_voltage_mV[i]);
     if (send_command(&fd, buffer) == -1) {
       fprintf(stderr, "Could not send command %s.\n", buffer);
     }
