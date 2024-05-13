@@ -7,6 +7,8 @@
 #include "DaphneConfig.h"
 #include "SerialPort.h"
 
+const char PROGRAM_VERSION[] = "1.0.1";
+
 #define BUFFER_SIZE 200
 #define SERIAL_PORT_LENGTH 15
 #define CONFIG_FILE_LENGTH 170
@@ -17,10 +19,11 @@ static const struct option long_options[] = {
     {"port",        1, NULL, 'p'},
     {"config-file", 1, NULL, 'c'},
     {"verbose",     0, NULL, 'v'},
+    {"version",     0, NULL, 'V'},
     {NULL,          0, NULL,  0}};
 
 /* Description of short options for getopt_long. */
-static const char * const short_options = "hp:c:v";
+static const char * const short_options = "hp:c:vV";
 
 /* Usage summary text. */
 static const char * const usage_template =
@@ -28,7 +31,8 @@ static const char * const usage_template =
 	"   -h, --help                      Print this information.\n"
 	"   -p, --port /dev/ttyUSB*         Serial port.\n"
   "   -c --config-file /path/to/file  Path to config file for DAPHNE IO.\n"
-	"   -v, --verbose                   Print debug messages.\n";
+	"   -v, --verbose                   Print debug messages.\n"
+	"   -V, --version                   Print version information.\n";
 
 /* Print usage information and exit. If IS_ERROR is nonzero, write to
 stderr and use an error exit code. Otherwise, write to stdout and
@@ -81,7 +85,18 @@ int main(int argc, char* argv[]) {
       case 'v':
         verbose = 1;
         break;
-      
+
+      /* Print version information */
+      case 'V':
+        fprintf(
+            stdout,
+            "Daphne Board IO Config - Version %s\n"
+            "Author: Caleb Trepowski (calebtrepowski at gmail.com)\n"
+            "Based on daphne_gui (https://github.com/ecristal/daphne_gui) by Esteban Cristaldo\n",
+            PROGRAM_VERSION);
+        return 0;
+        break;
+
       /* The user specified an invalid option. */
       case '?':
         print_usage(1);
